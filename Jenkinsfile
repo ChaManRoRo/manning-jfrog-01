@@ -19,26 +19,24 @@ pipeline {
 
         stage('Upload Terraform Files to JFrog') {
             steps {
-                sh 'echo "Uploading Terraform configuration to JFrog..."'
-                jf 'rt u "*.tf" tf-trial/'
-                jf 'rt bp'
+                jf 'rt u "*.tf" tf-trial/'  // Upload all Terraform files to JFrog
+                jf 'rt bp'  // Publish build info to JFrog
             }
         }
 
         stage('Xray Security Scan') {
             steps {
-                jf 'scan --watches Terraform-Security-Watch --fail=true ./'
+                jf 'scan --watches Terraform-Security-Watch --fail=true ./'  // Run JFrog security scan
             }
         }
 
         stage('Deploy to AWS with Terraform') {
             steps {
                 withCredentials([
-                    string(credentialsId: 'manning_AWS', variable: 'AWS_ACCESS_KEY_ID'),
-                    string(credentialsId: 'manning_AWS', variable: 'AWS_SECRET_ACCESS_KEY')
+                    aws(credentialsId: 'manning_AWS', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')
                 ]) {
                     sh '''
-                    echo "Deploying to AWS..."
+                    echo Deploying to AWS...
                     export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
                     export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
                     terraform init

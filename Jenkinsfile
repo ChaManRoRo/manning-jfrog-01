@@ -19,7 +19,7 @@ pipeline {
 
         stage('Upload Terraform Files to JFrog') {
             steps {
-                sh 'echo "Terraform configuration" > main.tf'
+                sh 'echo "Uploading Terraform configuration to JFrog..."'
                 jf 'rt u "*.tf" tf-trial/'
                 jf 'rt bp'
             }
@@ -34,13 +34,13 @@ pipeline {
         stage('Deploy to AWS with Terraform') {
             steps {
                 withCredentials([
-                    aws(credentialsId: 'manning_AWS', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')
+                    string(credentialsId: 'manning_AWS', variable: 'AWS_ACCESS_KEY_ID'),
+                    string(credentialsId: 'manning_AWS', variable: 'AWS_SECRET_ACCESS_KEY')
                 ]) {
                     sh '''
                     echo "Deploying to AWS..."
                     export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
                     export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-                    
                     terraform init
                     terraform apply -auto-approve
                     '''

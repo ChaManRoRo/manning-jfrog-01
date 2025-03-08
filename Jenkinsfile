@@ -20,14 +20,14 @@ pipeline {
         stage ('Upload Terraform Files to JFrog') {
             steps {
                 sh 'echo "Terraform configuration" > main.tf'
-                jf 'rt u "*.tf" tf-trial/'  
-                jf 'rt bp'  
+                jf 'rt u "*.tf" tf-trial/'
+                jf 'rt bp'
             }
         }
 
         stage('Xray Security Scan') {
             steps {
-                jf 'xr scan --watches Terraform-Security-Watch --fail=true'
+                jf 'scan --watches Terraform-Security-Watch --fail=true ./'
             }
         }
 
